@@ -14,8 +14,8 @@ def normalize(X: np.ndarray, axis: int) -> np.ndarray:
 #def generate_noise(grid: Tuple[int], resolution: Tuple[int]) -> np.ndarray:
 if __name__ == '__main__':
     #grid, resolution = (32,), (1000,)
-    grid, resolution = (12,12), (1000,1000)
-    #grid, resolution = (6,6,6), (100,101,102)
+    #grid, resolution = (16,16), (1000,1000)
+    grid, resolution = (6,6,6), (100,101,102)
 
     # random number generator for debugging
     rng = np.random.default_rng(seed=42)
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     smooth_mesh_fractions = fade(mesh - floors)
 
     # interpolate one dimension after another
-    for dim in range(n, 0, -1):
+    for i, dim in enumerate(range(n, 0, -1)):
 
         # 2 ** (dim - 1) to select the face of the dim-dimensional hypercube along the first dimension
         _num_corners_hyperface = 2 ** (dim - 1)
@@ -113,7 +113,6 @@ if __name__ == '__main__':
         # now convert the boolean mask into array indices
         _hyperface_corner_idx_floors = np.argwhere(_hyperface_mask_floors).ravel()
         _hyperface_corner_idx_ceils  = np.argwhere(_hyperface_mask_ceils).ravel()
-        print(f'dim = {dim}\n\tcorner_idx_floor={_hyperface_corner_idx_floors}\n\tidx={(dim+2)%n}')
 
         dot_products_floors = dot_products[_hyperface_corner_idx_floors]
         dot_products_ceils  = dot_products[_hyperface_corner_idx_ceils]
@@ -129,12 +128,12 @@ if __name__ == '__main__':
         # therefore it is exactly opposite
         # (i.e. dim = 2 -> idx = 0 and dim = 1 -> idx = 1), which is exactly 
         # achieved with the modulo operator
-        dot_products = dot_products_floors + smooth_mesh_fractions[dim % n] * dot_products_diff
+        #dot_products = dot_products_floors + smooth_mesh_fractions[dim % n] * dot_products_diff
+        dot_products = dot_products_floors + smooth_mesh_fractions[i] * dot_products_diff
 
     # reshape from (1, ...) to (...)
     dot_products = dot_products.squeeze()
 
-    print('plotting')
     if n == 1:
         import matplotlib.colors as colors
         norm = colors.Normalize(dot_products.min(), dot_products.max())
